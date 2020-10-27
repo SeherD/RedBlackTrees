@@ -1,9 +1,7 @@
 package cpsc331.assignment2;
 
-import cpsc331.assignment2.Colour;
 import cpsc331.collections.ElementFoundException;
 import java.util.NoSuchElementException;
-import cpsc331.assignment2.RBTNode;
 
 /*
  *
