@@ -258,7 +258,20 @@ class RBTNode<K extends Comparable<K>, V> {
   RBTNode<K, V> search(K key) {
   
     assert key != null : "Input key cannot be null."; 
+    RBTNode<K,V> x=this;
+    if(this.isNil) {
+    	throw new NoSuchElementException();
+    }
+    while(!x.isNil) {
+    	 int cmp = key.compareTo(x.key);
+         if      (cmp < 0) x = x.left();
+         else if (cmp > 0) x = x.right();
+         else  return x;
+     
+     }
     
+    if(x.key!=key)
+    	throw new NoSuchElementException();
     // Remaining details of this method must be replaced!
     return null;
 
