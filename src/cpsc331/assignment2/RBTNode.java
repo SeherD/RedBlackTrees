@@ -259,6 +259,7 @@ class RBTNode<K extends Comparable<K>, V> {
   
     assert key != null : "Input key cannot be null."; 
     RBTNode<K,V> x=this;
+    RBTNode<K,V> nil=new RBTNode();
    /*if(this.isNil) {
     	throw new NoSuchElementException();
     }*/
@@ -270,10 +271,8 @@ class RBTNode<K extends Comparable<K>, V> {
      
      }
     
-    if(x.key!=key)
-    	throw new NoSuchElementException();
-    // Remaining details of this method must be replaced!
-    return null;
+   
+	return nil;
 
   }
  
@@ -694,61 +693,65 @@ class RBTNode<K extends Comparable<K>, V> {
   // the tree should be unchanged, if the input key was not stored
   // at any node in this tree before this method was called.
 
-  private RBTNode<K, V> regular_delete(K key)
+ private RBTNode<K, V> regular_delete(K key)
                                        throws NoSuchElementException {
-  
+	 
     assert key != null : "Input key cannot be null.";
-    RBTNode<K,V> x=search(key);
-    
-    RBTNode<K,V> newNode=new RBTNode<K,V>();
-    newNode=null;
-    if(x.isNil) {
-    	 
-    	x.parent.isNil=true;
-    	newNode= x.parent;
-    }
-    if(x.left==null||x.right==null)
-    {
-    if(x.left==null)
-    {
-    	newNode= x.right;
-    }
-    
-    
-    if(x.right==null) {
-    	newNode= x.left;
-    }
-    if(x==x.parent.left)
-    	x.parent.left=newNode;
-    
-    if(x==x.parent.right)
-    	x.parent.right=newNode;
-    }
-    
-    else {
-    	RBTNode<K,V>temp,p=new RBTNode<K,V>();
-       temp=p=null;
-       temp=x.right;
-       while(temp.left!=null) {
-    	   p=temp;
-    	   temp=temp.left;
-       }
-       if(p!=null) {
-    	   p.left=temp.right;
-       }
-       else
-    	   x.right=temp.right;
-       
-       
-       x.value=temp.value;
-    }
-  
-    
+    RBTNode<K,V> y= search(key);
 
-    // Remaining etails of this method must be replaced!
-    return newNode;
+	if(y.isNil()) {
+		throw new NoSuchElementException() ;
+	}
+	
+	if(this.isNil()) {
+		this.setSize(this.size()-1);
+		return this;
+	}
+	
+		else if(key.compareTo(this.key) == - 1) {
+			  this.setSize(this.size()-1);
+			  return this.left.regular_delete(this.key);
+		  }
+	  
+		  else if(key.compareTo(this.key) ==  1) {
+			  this.setSize(this.size()-1);
+			  return this.right.regular_delete(this.key);
+		  }
+	else {
+		if(this.left.isNil()) {
+			this.setSize(this.size()-1);
+			return this.right;
+			}
+		else if(this.right==null) {
+			this.setSize(this.size()-1);
+				return this.left;}
+				else {
+					this.key=minValue(this.right);
+					this.right=regular_delete(this.key)	;
+					//this.setSize(this.size()-1);
+					return null;
+					
+				}
+			}
+		
+	
+	
+     
+	
+    	
+}
+	
 
-  }
+		
+
+ K minValue( RBTNode<K, V> node) {
+	 K key=node.key;
+	 while(node.left!=null) {
+		 key=node.left.key;
+		 node=node.left;
+	 }
+	 return key;
+ }
 
   // The next ten methods each implement one of the adjustments
   // that might be required when the tree includes a double-black
@@ -775,9 +778,20 @@ class RBTNode<K extends Comparable<K>, V> {
     assert (beta.right().colour == Colour.BLACK) : "Sibling of x must be black.";
     assert ((beta.right()).right().colour == Colour.RED) :
       "Right child of sibling of x must be red.";
-
+    RBTNode<K, V> delta=beta.right();
     // Additional details of this method must be replaced!
-    return null;
+    beta.leftRotate();
+    x.setColour(Colour.BLACK);
+    delta.right().setColour(Colour.BLACK);
+    
+   delta.setColour(beta.colour);
+    beta.setColour(Colour.BLACK);
+   
+    x=delta;
+    
+		// x.setBlackHeight(x.blackHeight-1);
+	
+    return x;
 
   }
 
@@ -801,9 +815,16 @@ class RBTNode<K extends Comparable<K>, V> {
       "Left child of sibling of x must be black.";
     assert ((beta.right()).right().colour == Colour.BLACK) :
       "Right child of sibling of x must be black.";
+    
+    
+    RBTNode<K, V> delta=beta.right();
+    delta.colour=Colour.RED;
+    x.setColour(Colour.BLACK);
+    beta.setColour(Colour.REDBLACK);
+    x=beta;
 
     // Details of this method must be replaced!
-    return null;
+    return x;
 
   }
 
@@ -826,9 +847,14 @@ class RBTNode<K extends Comparable<K>, V> {
       "Left child of sibling of x must be red.";
     assert ((beta.right()).right().colour == Colour.BLACK) :
       "Right child of sibling of x must be black.";
-
+    
+    RBTNode<K, V> delta=beta.right();
+    delta.left().setColour(Colour.BLACK);
+    delta.rightRotate();
+    delta.setColour(Colour.RED);
+    x=delete_case_3a(x);
     // Details of this method must be replaced!
-    return null;
+    return x;
 
   }
 
@@ -843,6 +869,7 @@ class RBTNode<K extends Comparable<K>, V> {
   private RBTNode<K, V> delete_case_3d(RBTNode<K, V> x) {
   
     RBTNode<K, V> beta = x.parent();
+   
     
     assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
     assert (x == beta.left()): "x must be a left child.";
@@ -852,9 +879,13 @@ class RBTNode<K extends Comparable<K>, V> {
       "Left child of sibling of x must be black.";
     assert ((beta.right()).right().colour == Colour.BLACK) :
       "Right child of sibling of x must be black.";
-
-    // Details of this method must be replaced!
-    return null;
+    RBTNode<K, V> delta = beta.right();
+   delta.setColour(Colour.BLACK);
+    beta.setColour(Colour.RED);
+    beta.leftRotate();
+    
+    
+    return x;
 
   }
 
@@ -878,9 +909,13 @@ class RBTNode<K extends Comparable<K>, V> {
       "Left child of sibling of x must be black.";
     assert ((beta.right()).right().colour == Colour.BLACK) :
       "Right child of sibling of x must be black.";
-
+    RBTNode<K, V> delta = beta.right();
+    x.setColour(Colour.BLACK);
+    beta.setColour(Colour.DOUBLEBLACK);
+    delta.setColour(Colour.RED);
     // Details of this method must be replaced!
-    return null;
+    x=beta;
+    return x;
 
   }
 
@@ -1018,8 +1053,56 @@ class RBTNode<K extends Comparable<K>, V> {
   
     assert key != null : "Input key cannot be null.";
 
-    // Remaining details of this method must be replaced!
-
+    try { 
+    	
+    	
+    	RBTNode<K,V> y=search(key);
+    	
+    	RBTNode<K, V> x= regular_delete( key);
+    	if(!x.isNil)
+    	if(y.colour==Colour.BLACK) {
+    		if(x.colour==Colour.RED) {
+    			x.setColour(Colour.REDBLACK);
+    			
+    		}
+    		else {
+    			x.setColour(Colour.DOUBLEBLACK);
+    			
+    		}
+    	}
+    	if(x.colour==Colour.DOUBLEBLACK && x.parent!=null)	{
+    		if(x==x.parent.left()) {
+    	
+    		if(x.parent.right.colour==Colour.BLACK) 
+    			if(x.parent.right.right!=null && x.parent.right.right.colour==Colour.BLACK ) {
+    			 delete_case_3a(x);
+    			 x=x.parent;
+    			 }
+    			 
+    			 else if(x.parent.colour==Colour.RED && x.parent.right.colour==Colour.BLACK) {
+    				 if(x.parent.right.right.colour==x.parent.right.left.colour && x.parent.right.left.colour==Colour.BLACK) {
+    					 delete_case_3b(x);
+    					 
+    					x=x.parent;
+    					 
+    				 }
+    			 }
+    			 
+    			}
+    		
+    			
+    
+    	}
+    	if(x.colour==Colour.REDBLACK || x.parent==null) {
+    		x.setColour(Colour.BLACK);
+    	}	 
+    	if(x.colour==Colour.REDBLACK || x.parent==null) {
+    		x.setColour(Colour.BLACK);
+    	}
+    }
+    catch (NoSuchElementException ex) {
+    	throw ex;
+    }
   }
   
 }
