@@ -698,6 +698,10 @@ class RBTNode<K extends Comparable<K>, V> {
 				this.left = null;
 				this.right = null;
 				this.colour = Colour.BLACK;
+				this.key = null;
+				this.value = null;
+				this.setSize(0);
+				this.setBlackHeight(0);
 				this.isNil = true;
 				return this;
 			}
