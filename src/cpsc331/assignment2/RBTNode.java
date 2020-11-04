@@ -677,6 +677,659 @@ class RBTNode<K extends Comparable<K>, V> {
 		RBTNode<K, V> y = search(key);
 		
 		if (this.isNil()) {
+			return this;
+		}
+		if (y.isNil()) {
+			throw new NoSuchElementException();
+		}
+		else if (key.compareTo(this.key) == -1) {
+			this.setSize(this.size() - 1);
+			return this.left.regular_delete(key);
+		}
+
+		else if (key.compareTo(this.key) == 1) {
+			this.setSize(this.size() - 1);
+			return this.right.regular_delete(key);
+			
+		} 
+		else {
+			if(this.left.isNil() && this.right.isNil) {
+				this.left = null;
+				this.right = null;
+				this.colour = Colour.BLACK;
+				this.key = null;
+				this.value = null;
+				this.setSize(0);
+				this.setBlackHeight(0);
+				this.isNil = true;
+				return this;
+			}
+			else if (this.left.isNil() && !this.right.isNil()) {
+				this.setSize(this.right.size());
+				this.setKey(this.right.key);
+				this.setValue(this.right.value);
+				return this;
+				
+			} else if (this.right.isNil() && !this.left.isNil()) {
+				this.setSize(this.left.size());
+				this.setKey(this.left.key);
+				this.setValue(this.left.value);
+				return this;
+			} else {
+				RBTNode<K, V> smallestNode = minValue(this.right);
+				this.key = smallestNode.key;
+				this.value = smallestNode.value;
+				smallestNode.setColour(colour.BLACK);
+				smallestNode.setKey(null);
+				smallestNode.setValue(null);
+				smallestNode.isNil = true;
+				return this;
+			}
+		}
+
+	}
+
+	RBTNode<K,V> minValue(RBTNode<K, V> node) {
+		K key = node.key;
+		while (node.left != null) {
+			key = node.left.key;
+			node = node.left;
+		}
+		return node;
+	}
+
+	// The next ten methods each implement one of the adjustments
+	// that might be required when the tree includes a double-black
+	// node that is not at the root.
+	//
+	// - The input is a reference to the double-black node.
+	//
+	// - In the descriptions that follow, x is the double-black
+	// root that is not at the root.
+
+	// Implements the adjustment needed in case 3(a):
+	// - x is a left child
+	// - sibling of x is black
+	// - right child of the sibling of x is red
+	// A reference to x (whose colour has changed) should be returned
+	// as output.
+
+	private RBTNode<K, V> delete_case_3a(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.left()) : "x must be a left child.";
+		assert (beta.right().colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.right()).right().colour == Colour.RED) : "Right child of sibling of x must be red.";
+		RBTNode<K, V> delta = beta.right();
+		beta.leftRotate();
+		x.setColour(Colour.BLACK);
+		delta.right().setColour(Colour.BLACK);
+
+		delta.setColour(beta.colour);
+		beta.setColour(Colour.BLACK);
+
+		x = delta;
+
+		// x.setBlackHeight(x.blackHeight-1);
+
+		return x;
+
+	}
+
+	// Implements the adjustment needed in case 3(b):
+	// - x is a left child
+	// - parent of x is red
+	// - sibling of x is black
+	// - both children of the siblings of x are black
+	// A reference to the red-black node that results from this
+	// change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3b(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.left()) : "x must be a left child.";
+		assert (beta.colour == Colour.RED) : "Parent of x must be red.";
+		assert (beta.right().colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.right()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
+		assert ((beta.right()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+
+		RBTNode<K, V> delta = beta.right();
+		delta.colour = Colour.RED;
+		x.setColour(Colour.BLACK);
+		beta.setColour(Colour.REDBLACK);
+		x = beta;
+
+		// Details of this method must be replaced!
+		return x;
+
+	}
+
+	// Implements the adjustment needed in case 3(c):
+	// - x is a left child
+	// - sibling of x is black
+	// - left child of sibling of x is red
+	// - right child of sibling of x is black
+	// A reference to the double-black node that results from
+	// this change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3c(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.left()) : "x must be a left child.";
+		assert ((beta.right()).colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.right()).left().colour == Colour.RED) : "Left child of sibling of x must be red.";
+		assert ((beta.right()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+
+		RBTNode<K, V> delta = beta.right();
+		delta.left().setColour(Colour.BLACK);
+		delta.rightRotate();
+		delta.setColour(Colour.RED);
+		x = delete_case_3a(x);
+		// Details of this method must be replaced!
+		return x;
+
+	}
+
+	// Implements the adjustment needed in case 3(d):
+	// - x is a left child
+	// - parent of x is black
+	// - sibling of x is red
+	// - both children of the sibling of x are black
+	// A reference to the double-black node that results from
+	// this change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3d(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.left()) : "x must be a left child.";
+		assert (beta.colour == Colour.BLACK) : "Parent of x must be black.";
+		assert (beta.right().colour == Colour.RED) : "Sibling of x must be red.";
+		assert ((beta.right()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
+		assert ((beta.right()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+		RBTNode<K, V> delta = beta.right();
+		delta.setColour(Colour.BLACK);
+		beta.setColour(Colour.RED);
+		beta.leftRotate();
+
+		return x;
+
+	}
+
+	// Implements the adjustment needed in case 3(e):
+	// - x is a left child
+	// - parent of x is black
+	// - sibling of x is black
+	// - both children of the sibling of x are black
+	// A reference to the double-black node that results from
+	// this change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3e(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.left()) : "x must be a left child.";
+		assert (beta.colour == Colour.BLACK) : "Parent of x must be black.";
+		assert (beta.right().colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.right()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
+		assert ((beta.right()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+		RBTNode<K, V> delta = beta.right();
+		x.setColour(Colour.BLACK);
+		beta.setColour(Colour.DOUBLEBLACK);
+		delta.setColour(Colour.RED);
+		// Details of this method must be replaced!
+		x = beta;
+		return x;
+
+	}
+
+	// Implements the adjustment needed in case 3(f):
+	// - x is a right child
+	// - sibling of x is black
+	// - left child of the sibling of x is red
+	// A reference to x (whose colour has changed) should be returned
+	// as output.
+
+	private RBTNode<K, V> delete_case_3f(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.right()) : "x must be a right child.";
+		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.left()).left().colour == Colour.RED) : "Left child of sibling of x must be red.";
+
+		// Details of this method must be replaced!
+		return null;
+
+	}
+
+	// Implements the adjustment needed in case 3(g):
+	// - x is a right child
+	// - parent of x is red
+	// - sibling of x is black
+	// - both children of the sibling of x are black
+	// A reference to the red-black node that results from
+	// this change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3g(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.right()) : "x must be a right child.";
+		assert (beta.colour == Colour.RED) : "Parent of x must be red.";
+		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
+		assert ((beta.left()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+
+		// Details of this method must be replaced!
+		return null;
+
+	}
+
+	// Implements the adjustment needed in case 3(h):
+	// - x is a right child
+	// - sibling of x is black
+	// - left child of the sibling of x is black
+	// - right child of the sibling of x is red
+	// A reference to the double-black node that results from
+	// this change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3h(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.right()) : "x must be a right child.";
+		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
+		assert ((beta.left()).right().colour == Colour.RED) : "Right child of sibling of x must be red.";
+
+		// Details of this method must be replaced!
+		return null;
+
+	}
+
+	// Implements the adjustment needed in case 3(i):
+	// - x is a right child
+	// - parent of x is black
+	// - sibling of x is red
+	// - both children of the sibling of x are black
+	// A reference to the double-black node that results from
+	// this change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3i(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.right()) : "x must be a right child.";
+		assert (beta.colour == Colour.BLACK) : "Parent of x must be black.";
+		assert (beta.left().colour == Colour.RED) : "Sibling of x must be red.";
+		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
+		assert ((beta.left()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+
+		// Details of this method must be replaced!
+		return null;
+
+	}
+
+	// Implements the adjustment needed in case 3(j):
+	// - x is a right child
+	// - parent of x is black
+	// - sibling of x is black
+	// - both children of the sibling of x are black
+	// A reference to the double-black node that results from
+	// this change should be returned as output.
+
+	private RBTNode<K, V> delete_case_3j(RBTNode<K, V> x) {
+
+		RBTNode<K, V> beta = x.parent();
+
+		assert (x.colour == Colour.DOUBLEBLACK) : "x must be double-black.";
+		assert (x == beta.right()) : "x must be a right child.";
+		assert (beta.colour == Colour.BLACK) : "Parent of x must be black.";
+		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
+		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
+		assert ((beta.left()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+
+		// Details of this method must be replaced!
+		return null;
+
+	}
+
+	// Method for the deletion of a node with a given key.
+	// This should throw a NoSuchElementException, leaving the
+	// tree unchanged, if there was no node storing the
+	// given tree before the operation was performed.
+
+	void delete(K key) throws NoSuchElementException {
+
+		assert key != null : "Input key cannot be null.";
+
+		try {
+			RBTNode<K, V> y = search(key);
+			//System.out.println("key" + y.key);
+
+			RBTNode<K, V> x = regular_delete(key);
+			if (!x.isNil)
+				if (y.colour == Colour.BLACK) {
+					if (x.colour == Colour.RED) {
+						x.setColour(Colour.REDBLACK);
+
+					} else {
+						x.setColour(Colour.DOUBLEBLACK);
+
+					}
+				}
+			if (x.colour == Colour.DOUBLEBLACK && x.parent != null) {
+				if (x == x.parent.left()) {
+						if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null && x.parent.right.right.colour == Colour.BLACK) {
+							delete_case_3a(x);
+							x = x.parent;
+						}
+
+						else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == x.parent.right.left.colour
+								&& x.parent.right.left.colour == Colour.BLACK) {
+								delete_case_3b(x);
+								x = x.parent;
+						}
+						else if(x.parent.right.left.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == Colour.BLACK ) {
+							delete_case_3c(x);
+						}
+						else if(x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.RED && x.parent.right.right.colour== Colour.BLACK && x.parent.right.left.colour == Colour.BLACK) {
+							delete_case_3d(x);
+						}
+						else if(x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK && x.parent.right.left.colour == Colour.BLACK && x.parent.right.right.colour == Colour.BLACK) {
+							delete_case_3e(x);
+							x = x.parent;
+						}
+
+				}
+
+			}
+			if (x.colour == Colour.REDBLACK || x.parent == null) {
+				x.setColour(Colour.BLACK);
+			}
+			if (x.colour == Colour.REDBLACK || x.parent == null) {
+				x.setColour(Colour.BLACK);
+			}
+		} catch (NoSuchElementException ex) {
+			throw ex;
+		}
+	}
+
+}
+ng of parent must be red.";
+		assert (grandparent.left).left != null : "z cannot be null.";
+		assert !((grandparent.left).left).isNil : "z cannot be NIL.";
+		assert ((grandparent.left).left).colour == Colour.RED : "z must be red.";
+
+		grandparent.left.setColour(Colour.BLACK);
+		grandparent.right.setColour(Colour.BLACK);
+		grandparent.setColour(Colour.RED);
+		grandparent.setBlackHeight(blackHeight + 1);
+
+		return grandparent;
+
+	}
+
+	// Implements the adjustment for an insertion in case 1(b):
+	// - z is a right child
+	// - the parent of z is a left child
+	// - the sibling of the parent of z is red
+
+	private RBTNode<K, V> insert_case_1b(RBTNode<K, V> grandparent) {
+
+		assert grandparent.left != null : "Parent cannot be null.";
+		assert !(grandparent.left).isNil : "Parent  cannot be NIL.";
+		assert (grandparent.left).colour == Colour.RED : "Parent must be red.";
+		assert grandparent.right != null : "Sibling of parent cannot be null.";
+		assert !(grandparent.right).isNil : "Sibling of parent cannot be NIL.";
+		assert (grandparent.right).colour == Colour.RED : "Sibling of parent must be red.";
+		assert (grandparent.left).right != null : "z cannot be null.";
+		assert !((grandparent.left).right).isNil : "z cannot be NIL.";
+		assert ((grandparent.left).right).colour == Colour.RED : "z must be red.";
+
+		grandparent.left.setColour(Colour.BLACK);
+		grandparent.right.setColour(Colour.BLACK);
+		grandparent.setColour(Colour.RED);
+		grandparent.setBlackHeight(blackHeight + 1);
+
+		return grandparent;
+
+	}
+
+	// Implements the adjustment for an insertion in case 2:
+	// - z is a left child
+	// - the parent of z is a left child
+	// - the sibling of the parent of z is black
+
+	private RBTNode<K, V> insert_case_2(RBTNode<K, V> grandparent) {
+
+		assert grandparent.left != null : "Parent cannot be null.";
+		assert !(grandparent.left).isNil : "Parent cannot be NIL.";
+		assert (grandparent.left).colour == Colour.RED : "Parent must be red.";
+		assert grandparent.right != null : "Sibling of parent cannot be null.";
+		assert (grandparent.right).colour == Colour.BLACK : "Sibling of parent must be black.";
+		assert (grandparent.left).left != null : "z cannot be null.";
+		assert !((grandparent.left).left).isNil : "z cannot be NIL.";
+		assert ((grandparent.left).left).colour == Colour.RED : "z must be red.";
+
+		grandparent.rightRotate();
+		grandparent.setColour(Colour.BLACK);
+		grandparent.right.setColour(Colour.RED);
+
+		return grandparent;
+
+	}
+
+	// Implements the adjustment for an insertion in case 3:
+	// - z is a right child
+	// - the parent of z is a left child
+	// - the sibling of the parent of z is black
+
+	private RBTNode<K, V> insert_case_3(RBTNode<K, V> grandparent) {
+
+		assert grandparent.left != null : "Parent cannot be null.";
+		assert !(grandparent.left).isNil : "Parent cannot be NIL.";
+		assert (grandparent.left).colour == Colour.RED : "Parent must be red.";
+		assert grandparent.right != null : "Sibling of parent cannot be null.";
+		assert (grandparent.right).colour == Colour.BLACK : "Sibling of parent must be black.";
+		assert (grandparent.left).right != null : "z cannot be null.";
+		assert !((grandparent.left).right).isNil : "z cannot be NIL.";
+		assert ((grandparent.left).right).colour == Colour.RED : "z must be red.";
+
+		grandparent.left.leftRotate();
+		grandparent.rightRotate();
+		grandparent.setColour(Colour.BLACK);
+		grandparent.right.setColour(Colour.RED);
+
+		return grandparent;
+
+	}
+
+	// Implements the adjustment for an insertion in case 4(a):
+	// - z is a right child
+	// - the parent of z is a right child
+	// - the sibling of the parent of z is red
+
+	private RBTNode<K, V> insert_case_4a(RBTNode<K, V> grandparent) {
+
+		assert grandparent.right != null : "Parent cannot be null.";
+		assert !(grandparent.right).isNil : "Parent cannot be NIL.";
+		assert (grandparent.right).colour == Colour.RED : "Parent must be red.";
+		assert grandparent.left != null : "Sibling of parent cannot be null.";
+		assert !(grandparent.left).isNil : "Sibling of parent cannot be NIL.";
+		assert (grandparent.left).colour == Colour.RED : "Sibling of parent must be red.";
+		assert (grandparent.right).right != null : "z cannot be null.";
+		assert !((grandparent.right).right).isNil : "z cannot be NIL.";
+		assert ((grandparent.right).right).colour == Colour.RED : "z must be red.";
+
+		grandparent.left.setColour(Colour.BLACK);
+		grandparent.right.setColour(Colour.BLACK);
+		grandparent.setColour(Colour.RED);
+		grandparent.setBlackHeight(blackHeight + 1);
+		return grandparent;
+
+	}
+
+	// Implements the adjustment for an insertion in case 4(b):
+	// - z is a left child
+	// - the parent of z is a right child
+	// - the sibling of the parent of z is red
+
+	private RBTNode<K, V> insert_case_4b(RBTNode<K, V> grandparent) {
+
+		assert grandparent.right != null : "Parent cannot be null.";
+		assert !(grandparent.right).isNil : "Parent cannot be NIL.";
+		assert (grandparent.right).colour == Colour.RED : "Parent must be red.";
+		assert grandparent.left != null : "Sibling of parent cannot be null.";
+		assert !(grandparent.left).isNil : "Sibling of parent cannot be NIL.";
+		assert (grandparent.left).colour == Colour.RED : "Sibling of parent must be red.";
+		assert (grandparent.right).left != null : "z cannot be null.";
+		assert !((grandparent.right).left).isNil : "z cannot be NIL.";
+		assert ((grandparent.right).left).colour == Colour.RED : "z must be red.";
+
+		// Details of this method must be replaced!
+		grandparent.left.setColour(Colour.BLACK);
+		grandparent.right.setColour(Colour.BLACK);
+		grandparent.setColour(Colour.RED);
+		grandparent.setBlackHeight(blackHeight + 1);
+		return grandparent;
+
+	}
+
+	// Implements the adjustment for an insertion in case 5:
+	// - z is a right child
+	// - the parent of z is a right child
+	// - the sibling of the parent of z is black
+
+	private RBTNode<K, V> insert_case_5(RBTNode<K, V> grandparent) {
+
+		assert grandparent.right != null : "Parent cannot be null.";
+		assert !(grandparent.right).isNil : "Parent cannot be NIL.";
+		assert (grandparent.right).colour == Colour.RED : "Parent must be red.";
+		assert grandparent.left != null : "Sibling of parent cannot be null.";
+		assert (grandparent.left).colour == Colour.BLACK : "Sibling of parent must be black.";
+		assert (grandparent.right).right != null : "z cannot be null.";
+		assert !((grandparent.right).right).isNil : "z cannot be NIL.";
+		assert ((grandparent.right).right).colour == Colour.RED : "z must be red.";
+
+		grandparent.leftRotate();
+		grandparent.setColour(Colour.BLACK);
+		grandparent.left.setColour(Colour.RED);
+		return grandparent;
+
+	}
+
+	// Implements the adjustment for an insertion in case 6:
+	// - z is a left child
+	// - the parent of z is a right child
+	// - the sibling of the parent of z is black
+
+	private RBTNode<K, V> insert_case_6(RBTNode<K, V> grandparent) {
+
+		assert grandparent.right != null : "Parent cannot be null.";
+		assert !(grandparent.right).isNil : "Parent cannot be NIL.";
+		assert (grandparent.right).colour == Colour.RED : "Parent must be red.";
+		assert grandparent.left != null : "Sibling of parent cannot be null.";
+		assert (grandparent.left).colour == Colour.BLACK : "Sibling of parent must be black.";
+		assert (grandparent.right).left != null : "z cannot be null.";
+		assert !((grandparent.right).left).isNil : "z cannot be NIL.";
+		assert ((grandparent.right).left).colour == Colour.RED : "z must be red.";
+
+		grandparent.right.rightRotate();
+		grandparent.leftRotate();
+		grandparent.setColour(Colour.BLACK);
+		grandparent.left.setColour(Colour.RED);
+		return grandparent;
+
+	}
+
+	// Method for an insertion of a node with a given key and value.
+	// This should throw an ElementFoundException, leaving the tree unchanged,
+	// if the given key is stored at a node in this tree already.
+
+	void insert(K key, V value) throws ElementFoundException {
+
+		assert key != null : "Input key cannot be null!";
+
+		try {
+			RBTNode<K, V> insertedNode = regular_insert(key, value);
+			if (insertedNode.parent != null && insertedNode.parent.colour() == Colour.RED) {
+				RBTNode<K, V> z = insertedNode;
+				while (z.parent != null && z.parent.colour() == Colour.RED) {
+					if (z.parent.left() == z && z.parent.parent.left() == z.parent()
+							&& z.parent.parent.right.colour() == Colour.RED) {
+						insert_case_1a(z.parent.parent);
+						z = z.parent.parent;
+					} else if (z.parent.right() == z && z.parent.parent.left() == z.parent
+							&& z.parent.parent.right.colour() == Colour.RED) {
+						insert_case_1b(z.parent.parent);
+						z = z.parent.parent;
+					} else if (z.parent.left() == z && z.parent.parent.left() == z.parent()
+							&& z.parent.parent.right.colour() == Colour.BLACK) {
+						insert_case_2(z.parent.parent);
+						z = z.parent;
+					} else if (z.parent.right() == z && z.parent.parent.left() == z.parent()
+							&& z.parent.parent.right.colour() == Colour.BLACK) {
+						insert_case_3(z.parent.parent);
+						z = z.parent;
+					} else if (z.parent.right() == z && z.parent.parent.right() == z.parent()
+							&& z.parent.parent.left.colour() == Colour.RED) {
+						insert_case_4a(z.parent.parent);
+						z = z.parent.parent;
+					} else if (z.parent.left() == z && z.parent.parent.right() == z.parent
+							&& z.parent.parent.left.colour() == Colour.RED) {
+						insert_case_4b(z.parent.parent);
+						z = z.parent.parent;
+					} else if (z.parent.right() == z && z.parent.parent.right() == z.parent()
+							&& z.parent.parent.left.colour() == Colour.BLACK) {
+						insert_case_5(z.parent.parent);
+						z = z.parent;
+					} else if (z.parent.left() == z && z.parent.parent.right() == z.parent
+							&& z.parent.parent.left.colour() == Colour.BLACK) {
+						insert_case_6(z.parent.parent);
+						z = z.parent;
+					}
+					if (z.parent() == null && z.colour() == Colour.RED) {
+						z.setColour(Colour.BLACK);
+					}
+				}
+			}
+			if (insertedNode.parent == null && insertedNode.colour() == colour.RED) {
+				insertedNode.setColour(Colour.BLACK);
+			}
+		} catch (ElementFoundException e) {
+			throw e;
+		}
+
+	}
+
+	// Implements the beginning of a deletion of a node - adjusting
+	// the sizes of all nodes whose subtrees now represent sets
+	// whose sizes have changed, and returning the node (called x
+	// in later comments) that was promoted when a node was removed
+	// from this tree. A NoSuchElementException should be thrown, and
+	// the tree should be unchanged, if the input key was not stored
+	// at any node in this tree before this method was called.
+
+	private RBTNode<K, V> regular_delete(K key) throws NoSuchElementException {
+
+		assert key != null : "Input key cannot be null.";
+		RBTNode<K, V> y = search(key);
+		
+		if (this.isNil()) {
 			this.setSize(this.size() - 1);
 			return this;
 		}
