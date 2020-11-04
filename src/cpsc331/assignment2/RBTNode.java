@@ -257,10 +257,6 @@ class RBTNode<K extends Comparable<K>, V> {
 
 		assert key != null : "Input key cannot be null.";
 		RBTNode<K, V> x = this;
-		RBTNode<K, V> nil = new RBTNode();
-		/*
-		 * if(this.isNil) { throw new NoSuchElementException(); }
-		 */
 		while (!x.isNil) {
 			int cmp = key.compareTo(x.key);
 			if (cmp < 0)
@@ -271,9 +267,7 @@ class RBTNode<K extends Comparable<K>, V> {
 				return x;
 
 		}
-
-		return nil;
-
+		throw new NoSuchElementException();
 	}
 
 	// Returns the root of the subtree obtained by performing a left rotation
@@ -681,24 +675,25 @@ class RBTNode<K extends Comparable<K>, V> {
 
 		assert key != null : "Input key cannot be null.";
 		RBTNode<K, V> y = search(key);
-		if (y.isNil()) {
-			throw new NoSuchElementException();
-		}
-
-		else if (this.isNil()) {
+		
+		if (this.isNil()) {
 			this.setSize(this.size() - 1);
 			return this;
 		}
-
+		if (y.isNil()) {
+			throw new NoSuchElementException();
+		}
 		else if (key.compareTo(this.key) == -1) {
 			this.setSize(this.size() - 1);
-			return this.left.regular_delete(this.key);
+			return this.left.regular_delete(key);
 		}
 
 		else if (key.compareTo(this.key) == 1) {
 			this.setSize(this.size() - 1);
-			return this.right.regular_delete(this.key);
-		} else {
+			return this.right.regular_delete(key);
+			
+		} 
+		else {
 			if(this.left.isNil() && this.right.isNil) {
 				this.left = null;
 				this.right = null;
@@ -1019,8 +1014,8 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert key != null : "Input key cannot be null.";
 
 		try {
-
 			RBTNode<K, V> y = search(key);
+			//System.out.println("key" + y.key);
 
 			RBTNode<K, V> x = regular_delete(key);
 			if (!x.isNil)
@@ -1035,21 +1030,25 @@ class RBTNode<K extends Comparable<K>, V> {
 				}
 			if (x.colour == Colour.DOUBLEBLACK && x.parent != null) {
 				if (x == x.parent.left()) {
-
-					if (x.parent.right.colour == Colour.BLACK)
-						if (x.parent.right.right != null && x.parent.right.right.colour == Colour.BLACK) {
+						if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null && x.parent.right.right.colour == Colour.BLACK) {
 							delete_case_3a(x);
 							x = x.parent;
 						}
 
-						else if (x.parent.colour == Colour.RED && x.parent.right.colour == Colour.BLACK) {
-							if (x.parent.right.right.colour == x.parent.right.left.colour
-									&& x.parent.right.left.colour == Colour.BLACK) {
+						else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == x.parent.right.left.colour
+								&& x.parent.right.left.colour == Colour.BLACK) {
 								delete_case_3b(x);
-
 								x = x.parent;
-
-							}
+						}
+						else if(x.parent.right.left.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == Colour.BLACK ) {
+							delete_case_3c(x);
+						}
+						else if(x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.RED && x.parent.right.right.colour== Colour.BLACK && x.parent.right.left.colour == Colour.BLACK) {
+							delete_case_3d(x);
+						}
+						else if(x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK && x.parent.right.left.colour == Colour.BLACK && x.parent.right.right.colour == Colour.BLACK) {
+							delete_case_3e(x);
+							x = x.parent;
 						}
 
 				}
