@@ -1056,7 +1056,7 @@ class RBTNode<K extends Comparable<K>, V> {
 
 				}
 
-			}
+			} 
 			if (x.colour == Colour.REDBLACK || x.parent == null) {
 				x.setColour(Colour.BLACK);
 			}
