@@ -674,6 +674,7 @@ class RBTNode<K extends Comparable<K>, V> {
 	private RBTNode<K, V> regular_delete(K key) throws NoSuchElementException {
 
 		assert key != null : "Input key cannot be null.";
+		
 		RBTNode<K, V> y = search(key);
 		
 		if (this.isNil()) {
@@ -693,7 +694,7 @@ class RBTNode<K extends Comparable<K>, V> {
 			
 		} 
 		else {
-			if(this.left.isNil() && this.right.isNil) {
+			if(this.left.isNil() && this.right.isNil()) {
 				this.left = null;
 				this.right = null;
 				this.colour = Colour.BLACK;
@@ -708,12 +709,18 @@ class RBTNode<K extends Comparable<K>, V> {
 				this.setSize(this.right.size());
 				this.setKey(this.right.key);
 				this.setValue(this.right.value);
+				this.setColour(this.right.colour);
+				this.setRight(this.right.right);
+				this.right.parent = this;
 				return this;
 				
 			} else if (this.right.isNil() && !this.left.isNil()) {
 				this.setSize(this.left.size());
 				this.setKey(this.left.key);
 				this.setValue(this.left.value);
+				this.setColour(this.left.colour);
+				this.setLeft(this.left.left());
+				this.left.parent = this;
 				return this;
 			} else {
 				RBTNode<K, V> smallestNode = minValue(this.right);
@@ -766,13 +773,11 @@ class RBTNode<K extends Comparable<K>, V> {
 		beta.leftRotate();
 		x.setColour(Colour.BLACK);
 		delta.right().setColour(Colour.BLACK);
-
+		beta.setBlackHeight(beta.blackHeight - 1);
 		delta.setColour(beta.colour);
 		beta.setColour(Colour.BLACK);
 
 		x = delta;
-
-		// x.setBlackHeight(x.blackHeight-1);
 
 		return x;
 
@@ -1018,27 +1023,27 @@ class RBTNode<K extends Comparable<K>, V> {
 
 		try {
 			RBTNode<K, V> y = search(key);
-			//System.out.println("key" + y.key);
-
+			Colour yColour = y.colour();
 			RBTNode<K, V> x = regular_delete(key);
-			if (!x.isNil)
-				if (y.colour == Colour.BLACK) {
+				if (y.parent != null && yColour == Colour.BLACK && y.parent.colour == Colour.BLACK) {
 					if (x.colour == Colour.RED) {
 						x.setColour(Colour.REDBLACK);
-
-					} else {
+					} 
+					else if(x.colour == Colour.BLACK){
 						x.setColour(Colour.DOUBLEBLACK);
 
 					}
 				}
+			
 			if (x.colour == Colour.DOUBLEBLACK && x.parent != null) {
 				if (x == x.parent.left()) {
-						if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null && x.parent.right.right.colour == Colour.BLACK) {
+						if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null && x.parent.right.right.colour == Colour.RED) {
+							System.out.println("Subcase 3a has been called.");
 							delete_case_3a(x);
 							x = x.parent;
 						}
 
-						else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == x.parent.right.left.colour
+						/*else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == x.parent.right.left.colour
 								&& x.parent.right.left.colour == Colour.BLACK) {
 								delete_case_3b(x);
 								x = x.parent;
@@ -1052,13 +1057,11 @@ class RBTNode<K extends Comparable<K>, V> {
 						else if(x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK && x.parent.right.left.colour == Colour.BLACK && x.parent.right.right.colour == Colour.BLACK) {
 							delete_case_3e(x);
 							x = x.parent;
-						}
+						}*/
+						
 
 				}
 
-			} 
-			if (x.colour == Colour.REDBLACK || x.parent == null) {
-				x.setColour(Colour.BLACK);
 			}
 			if (x.colour == Colour.REDBLACK || x.parent == null) {
 				x.setColour(Colour.BLACK);
