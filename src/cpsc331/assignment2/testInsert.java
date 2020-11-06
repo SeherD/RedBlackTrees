@@ -1,14 +1,13 @@
 package cpsc331.assignment2;
 
-import static org.junit.Assert.assertTrue;
-
+import org.junit.*;
+import static org.junit.Assert.*;
+import cpsc331.assignment2.Colour;
 import java.util.NoSuchElementException;
-
-import org.junit.Test;
-
 import cpsc331.collections.ElementFoundException;
-
-import cpsc331.assignment2.*;
+import cpsc331.assignment2.RBTNode;
+import cpsc331.assignment2.RBT;
+import cpsc331.assignment2.RBTUtilities;
 
 /*
  *
@@ -353,7 +352,7 @@ import cpsc331.assignment2.*;
    }
    
    @Test
-   public void TestSimple2_3() {
+   public void TestSimple2_3() { 
      RBT<Integer, String> T = sampleTree4();
      testSuccess3(T, 1, "one", 2);
    }

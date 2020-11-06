@@ -210,7 +210,7 @@ import cpsc331.assignment2.RBTUtilities;
    @Test
    public void TestRemoveRed1() {
      RBT<Integer, String> T = sampleTree2();
-     testSuccess1(T, 2);
+     testSuccess1(T, 2); 
    }
    
    @Test
