@@ -1,13 +1,14 @@
 package cpsc331.assignment2;
 
-import org.junit.*;
-import static org.junit.Assert.*;
-import cpsc331.assignment2.Colour;
+import static org.junit.Assert.assertTrue;
+
 import java.util.NoSuchElementException;
+
+import org.junit.Test;
+
 import cpsc331.collections.ElementFoundException;
-import cpsc331.assignment2.RBTNode;
-import cpsc331.assignment2.RBT;
-import cpsc331.assignment2.RBTUtilities;
+
+import cpsc331.assignment2.*;
 
 /*
  *
