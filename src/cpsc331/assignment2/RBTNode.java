@@ -771,8 +771,10 @@ class RBTNode<K extends Comparable<K>, V> {
 		x.setColour(Colour.BLACK);
 		delta.right().setColour(Colour.BLACK);
 		beta.setBlackHeight(beta.blackHeight - 1);
+		Colour c = delta.colour;
 		delta.setColour(beta.colour);
-		beta.setColour(Colour.BLACK);
+
+		beta.setColour(c);
 
 		x = delta;
 
@@ -1061,29 +1063,29 @@ class RBTNode<K extends Comparable<K>, V> {
 					if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null
 							&& x.parent.right.right.colour == Colour.RED) {
 						// System.out.println("Subcase 3a has been called.");
-						delete_case_3a(x);
-						x = x.parent;
+						x = delete_case_3a(x);
+						
 					}
 
 					else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED
 							&& x.parent.right.right.colour == x.parent.right.left.colour
 							&& x.parent.right.left.colour == Colour.BLACK) {
-						delete_case_3b(x);
-						x = x.parent;
+						x = delete_case_3b(x);
+						
 					} else if (x.parent.right.left.colour == Colour.RED && x.parent.right.colour == Colour.BLACK
 							&& x.parent.right.right.colour == Colour.BLACK) {
-						delete_case_3c(x);
-						x = x.parent;
+						x = delete_case_3c(x);
+						
 					} else if (x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.RED
 							&& x.parent.right.right.colour == Colour.BLACK
 							&& x.parent.right.left.colour == Colour.BLACK) {
-						delete_case_3d(x);
-						x = x.parent;
+						x = delete_case_3d(x);
+						
 					} else if (x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK
 							&& x.parent.right.left.colour == Colour.BLACK
 							&& x.parent.right.right.colour == Colour.BLACK) {
-						delete_case_3e(x);
-						x = x.parent;
+						x = delete_case_3e(x);
+						
 					}
 
 				}
@@ -1092,29 +1094,29 @@ class RBTNode<K extends Comparable<K>, V> {
 					if (x.parent.left.colour == Colour.BLACK && x.parent.left.left != null
 							&& x.parent.left.left.colour == Colour.RED) {
 
-						delete_case_3f(x);
-						x = x.parent;
+						x = delete_case_3f(x);
+						
 					}
 
 					else if (x.parent.colour == Colour.RED && x.parent.left.colour == Colour.BLACK
 							&& x.parent.left.right.colour == x.parent.left.left.colour
 							&& x.parent.left.left.colour == Colour.BLACK) {
-						delete_case_3g(x);
-						x = x.parent;
+						x = delete_case_3g(x);
+						
 					} else if (x.parent.left.right.colour == Colour.RED && x.parent.left.colour == Colour.BLACK
 							&& x.parent.left.left.colour == Colour.BLACK) {
-						delete_case_3h(x);
-						x = x.parent;
+						x = delete_case_3h(x);
+						
 					} else if (x.parent.colour == Colour.BLACK && x.parent.left.colour == Colour.RED
 							&& x.parent.left.right.colour == Colour.BLACK
 							&& x.parent.left.left.colour == Colour.BLACK) {
-						delete_case_3i(x);
-						x = x.parent;
+						x = delete_case_3i(x);
+						
 					} else if (x.parent.colour == Colour.BLACK && x.parent.left.colour == Colour.BLACK
 							&& x.parent.left.left.colour == Colour.BLACK
 							&& x.parent.left.right.colour == Colour.BLACK) {
-						delete_case_3j(x);
-						x = x.parent;
+						x = delete_case_3j(x);
+						
 					}
 
 				}
