@@ -674,15 +674,15 @@ class RBTNode<K extends Comparable<K>, V> {
 	private RBTNode<K, V> regular_delete(K key) throws NoSuchElementException {
 
 		assert key != null : "Input key cannot be null.";
+
 		RBTNode<K, V> y = search(key);
-		
+
 		if (this.isNil()) {
 			return this;
 		}
 		if (y.isNil()) {
 			throw new NoSuchElementException();
-		}
-		else if (key.compareTo(this.key) == -1) {
+		} else if (key.compareTo(this.key) == -1) {
 			this.setSize(this.size() - 1);
 			return this.left.regular_delete(key);
 		}
@@ -690,10 +690,9 @@ class RBTNode<K extends Comparable<K>, V> {
 		else if (key.compareTo(this.key) == 1) {
 			this.setSize(this.size() - 1);
 			return this.right.regular_delete(key);
-			
-		} 
-		else {
-			if(this.left.isNil() && this.right.isNil) {
+
+		} else {
+			if (this.left.isNil() && this.right.isNil()) {
 				this.left = null;
 				this.right = null;
 				this.colour = Colour.BLACK;
@@ -703,17 +702,22 @@ class RBTNode<K extends Comparable<K>, V> {
 				this.setBlackHeight(0);
 				this.isNil = true;
 				return this;
-			}
-			else if (this.left.isNil() && !this.right.isNil()) {
+			} else if (this.left.isNil() && !this.right.isNil()) {
 				this.setSize(this.right.size());
 				this.setKey(this.right.key);
 				this.setValue(this.right.value);
+				this.setColour(this.right.colour);
+				this.setRight(this.right.right);
+				this.right.parent = this;
 				return this;
-				
+
 			} else if (this.right.isNil() && !this.left.isNil()) {
 				this.setSize(this.left.size());
 				this.setKey(this.left.key);
 				this.setValue(this.left.value);
+				this.setColour(this.left.colour);
+				this.setLeft(this.left.left());
+				this.left.parent = this;
 				return this;
 			} else {
 				RBTNode<K, V> smallestNode = minValue(this.right);
@@ -729,7 +733,7 @@ class RBTNode<K extends Comparable<K>, V> {
 
 	}
 
-	RBTNode<K,V> minValue(RBTNode<K, V> node) {
+	RBTNode<K, V> minValue(RBTNode<K, V> node) {
 		K key = node.key;
 		while (node.left != null) {
 			key = node.left.key;
@@ -766,13 +770,11 @@ class RBTNode<K extends Comparable<K>, V> {
 		beta.leftRotate();
 		x.setColour(Colour.BLACK);
 		delta.right().setColour(Colour.BLACK);
-
+		beta.setBlackHeight(beta.blackHeight - 1);
 		delta.setColour(beta.colour);
 		beta.setColour(Colour.BLACK);
 
 		x = delta;
-
-		// x.setBlackHeight(x.blackHeight-1);
 
 		return x;
 
@@ -830,7 +832,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		delta.left().setColour(Colour.BLACK);
 		delta.rightRotate();
 		delta.setColour(Colour.RED);
-		x = delete_case_3a(x);
+		// x = delete_case_3a(x);
 		// Details of this method must be replaced!
 		return x;
 
@@ -907,8 +909,17 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
 		assert ((beta.left()).left().colour == Colour.RED) : "Left child of sibling of x must be red.";
 
-		// Details of this method must be replaced!
-		return null;
+		RBTNode<K, V> delta = beta.left();
+		beta.rightRotate();
+		x.setColour(Colour.BLACK);
+		delta.left().setColour(Colour.BLACK);
+		beta.setBlackHeight(beta.blackHeight - 1);
+		delta.setColour(beta.colour);
+		beta.setColour(Colour.BLACK);
+
+		x = delta;
+
+		return x;
 
 	}
 
@@ -930,9 +941,15 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
 		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
 		assert ((beta.left()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+		RBTNode<K, V> delta = beta.left();
+		delta.colour = Colour.RED;
+		x.setColour(Colour.BLACK);
+		beta.setColour(Colour.REDBLACK);
+		x = beta;
 
 		// Details of this method must be replaced!
-		return null;
+		return x;
+		// Details of this method must be replaced!
 
 	}
 
@@ -953,10 +970,13 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
 		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
 		assert ((beta.left()).right().colour == Colour.RED) : "Right child of sibling of x must be red.";
+		RBTNode<K, V> delta = beta.left();
+		delta.right().setColour(Colour.BLACK);
+		delta.leftRotate();
+		delta.setColour(Colour.RED);
 
 		// Details of this method must be replaced!
-		return null;
-
+		return x;
 	}
 
 	// Implements the adjustment needed in case 3(i):
@@ -977,9 +997,13 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert (beta.left().colour == Colour.RED) : "Sibling of x must be red.";
 		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
 		assert ((beta.left()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
+		RBTNode<K, V> delta = beta.left();
+		delta.setColour(Colour.BLACK);
+		beta.setColour(Colour.RED);
+		beta.rightRotate();
 
+		return x;
 		// Details of this method must be replaced!
-		return null;
 
 	}
 
@@ -1001,10 +1025,13 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert (beta.left().colour == Colour.BLACK) : "Sibling of x must be black.";
 		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
 		assert ((beta.left()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
-
+		RBTNode<K, V> delta = beta.left();
+		x.setColour(Colour.BLACK);
+		beta.setColour(Colour.DOUBLEBLACK);
+		delta.setColour(Colour.RED);
 		// Details of this method must be replaced!
-		return null;
-
+		x = beta;
+		return x;
 	}
 
 	// Method for the deletion of a node with a given key.
@@ -1018,47 +1045,80 @@ class RBTNode<K extends Comparable<K>, V> {
 
 		try {
 			RBTNode<K, V> y = search(key);
-			//System.out.println("key" + y.key);
-
+			Colour yColour = y.colour();
 			RBTNode<K, V> x = regular_delete(key);
-			if (!x.isNil)
-				if (y.colour == Colour.BLACK) {
-					if (x.colour == Colour.RED) {
-						x.setColour(Colour.REDBLACK);
+			if (y.parent != null && yColour == Colour.BLACK && y.parent.colour == Colour.BLACK) {
+				if (x.colour == Colour.RED) {
+					x.setColour(Colour.REDBLACK);
+				} else if (x.colour == Colour.BLACK) {
+					x.setColour(Colour.DOUBLEBLACK);
 
-					} else {
-						x.setColour(Colour.DOUBLEBLACK);
-
-					}
 				}
-			if (x.colour == Colour.DOUBLEBLACK && x.parent != null) {
+			}
+
+			while (x.colour == Colour.DOUBLEBLACK && x.parent != null) {
 				if (x == x.parent.left()) {
-						if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null && x.parent.right.right.colour == Colour.BLACK) {
-							delete_case_3a(x);
-							x = x.parent;
-						}
+					if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null
+							&& x.parent.right.right.colour == Colour.RED) {
+						// System.out.println("Subcase 3a has been called.");
+						delete_case_3a(x);
+						x = x.parent;
+					}
 
-						else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == x.parent.right.left.colour
-								&& x.parent.right.left.colour == Colour.BLACK) {
-								delete_case_3b(x);
-								x = x.parent;
-						}
-						else if(x.parent.right.left.colour == Colour.RED && x.parent.right.colour == Colour.BLACK && x.parent.right.right.colour == Colour.BLACK ) {
-							delete_case_3c(x);
-						}
-						else if(x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.RED && x.parent.right.right.colour== Colour.BLACK && x.parent.right.left.colour == Colour.BLACK) {
-							delete_case_3d(x);
-						}
-						else if(x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK && x.parent.right.left.colour == Colour.BLACK && x.parent.right.right.colour == Colour.BLACK) {
-							delete_case_3e(x);
-							x = x.parent;
-						}
+					else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED
+							&& x.parent.right.right.colour == x.parent.right.left.colour
+							&& x.parent.right.left.colour == Colour.BLACK) {
+						delete_case_3b(x);
+						x = x.parent;
+					} else if (x.parent.right.left.colour == Colour.RED && x.parent.right.colour == Colour.BLACK
+							&& x.parent.right.right.colour == Colour.BLACK) {
+						delete_case_3c(x);
+						x = x.parent;
+					} else if (x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.RED
+							&& x.parent.right.right.colour == Colour.BLACK
+							&& x.parent.right.left.colour == Colour.BLACK) {
+						delete_case_3d(x);
+						x = x.parent;
+					} else if (x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK
+							&& x.parent.right.left.colour == Colour.BLACK
+							&& x.parent.right.right.colour == Colour.BLACK) {
+						delete_case_3e(x);
+						x = x.parent;
+					}
 
 				}
 
-			} 
-			if (x.colour == Colour.REDBLACK || x.parent == null) {
-				x.setColour(Colour.BLACK);
+				else if (x == x.parent.right()) {
+					if (x.parent.left.colour == Colour.BLACK && x.parent.left.left != null
+							&& x.parent.left.left.colour == Colour.RED) {
+
+						delete_case_3f(x);
+						x = x.parent;
+					}
+
+					else if (x.parent.colour == Colour.RED && x.parent.left.colour == Colour.BLACK
+							&& x.parent.left.right.colour == x.parent.left.left.colour
+							&& x.parent.left.left.colour == Colour.BLACK) {
+						delete_case_3g(x);
+						x = x.parent;
+					} else if (x.parent.left.right.colour == Colour.RED && x.parent.left.colour == Colour.BLACK
+							&& x.parent.left.left.colour == Colour.BLACK) {
+						delete_case_3h(x);
+						x = x.parent;
+					} else if (x.parent.colour == Colour.BLACK && x.parent.left.colour == Colour.RED
+							&& x.parent.left.right.colour == Colour.BLACK
+							&& x.parent.left.left.colour == Colour.BLACK) {
+						delete_case_3i(x);
+						x = x.parent;
+					} else if (x.parent.colour == Colour.BLACK && x.parent.left.colour == Colour.BLACK
+							&& x.parent.left.left.colour == Colour.BLACK
+							&& x.parent.left.right.colour == Colour.BLACK) {
+						delete_case_3j(x);
+						x = x.parent;
+					}
+
+				}
+
 			}
 			if (x.colour == Colour.REDBLACK || x.parent == null) {
 				x.setColour(Colour.BLACK);
