@@ -768,9 +768,11 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.right()).right().colour == Colour.RED) : "Right child of sibling of x must be red.";
 		RBTNode<K, V> delta = beta.right();
 		beta.leftRotate();
+		delta = beta;
+		beta = x;
+		x = x.left;
 		x.setColour(Colour.BLACK);
 		delta.right().setColour(Colour.BLACK);
-		beta.setBlackHeight(beta.blackHeight - 1);
 		Colour c = delta.colour;
 		delta.setColour(beta.colour);
 
@@ -805,7 +807,10 @@ class RBTNode<K extends Comparable<K>, V> {
 		delta.colour = Colour.RED;
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.REDBLACK);
+		beta.setBlackHeight(beta.blackHeight() - 1);
+		
 		x = beta;
+		
 
 		// Details of this method must be replaced!
 		return x;
@@ -831,11 +836,11 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.right()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
 
 		RBTNode<K, V> delta = beta.right();
-		delta.left().setColour(Colour.BLACK);
 		delta.rightRotate();
+		delta = delta.right();
+		delta.parent().setColour(Colour.BLACK);
 		delta.setColour(Colour.RED);
-		// x = delete_case_3a(x);
-		// Details of this method must be replaced!
+		
 		return x;
 
 	}
@@ -889,7 +894,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.DOUBLEBLACK);
 		delta.setColour(Colour.RED);
-		// Details of this method must be replaced!
+		beta.setBlackHeight(beta.blackHeight - 1);
 		x = beta;
 		return x;
 
@@ -912,12 +917,16 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.left()).left().colour == Colour.RED) : "Left child of sibling of x must be red.";
 
 		RBTNode<K, V> delta = beta.left();
-		beta.rightRotate();
 		x.setColour(Colour.BLACK);
+		beta.rightRotate();
+		delta = beta;
+		beta = x;
+		x = x.right;
 		delta.left().setColour(Colour.BLACK);
-		beta.setBlackHeight(beta.blackHeight - 1);
+		Colour c = delta.colour;
 		delta.setColour(beta.colour);
-		beta.setColour(Colour.BLACK);
+
+		beta.setColour(c);
 
 		x = delta;
 
@@ -947,6 +956,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		delta.colour = Colour.RED;
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.REDBLACK);
+		beta.setBlackHeight(beta.blackHeight() - 1);
 		x = beta;
 
 		// Details of this method must be replaced!
@@ -973,8 +983,9 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
 		assert ((beta.left()).right().colour == Colour.RED) : "Right child of sibling of x must be red.";
 		RBTNode<K, V> delta = beta.left();
-		delta.right().setColour(Colour.BLACK);
 		delta.leftRotate();
+		delta = delta.left;
+		delta.parent().setColour(Colour.BLACK);
 		delta.setColour(Colour.RED);
 
 		// Details of this method must be replaced!
@@ -1031,6 +1042,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.DOUBLEBLACK);
 		delta.setColour(Colour.RED);
+		beta.setBlackHeight(beta.blackHeight - 1);
 		// Details of this method must be replaced!
 		x = beta;
 		return x;
@@ -1062,7 +1074,6 @@ class RBTNode<K extends Comparable<K>, V> {
 				if (x == x.parent.left()) {
 					if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null
 							&& x.parent.right.right.colour == Colour.RED) {
-						// System.out.println("Subcase 3a has been called.");
 						x = delete_case_3a(x);
 						
 					}
@@ -1093,7 +1104,6 @@ class RBTNode<K extends Comparable<K>, V> {
 				else if (x == x.parent.right()) {
 					if (x.parent.left.colour == Colour.BLACK && x.parent.left.left != null
 							&& x.parent.left.left.colour == Colour.RED) {
-
 						x = delete_case_3f(x);
 						
 					}
@@ -1122,7 +1132,7 @@ class RBTNode<K extends Comparable<K>, V> {
 				}
 
 			}
-			if (x.colour == Colour.REDBLACK || x.parent == null) {
+			if(x.colour == Colour.REDBLACK || x.parent == null) {
 				x.setColour(Colour.BLACK);
 			}
 		} catch (NoSuchElementException ex) {
