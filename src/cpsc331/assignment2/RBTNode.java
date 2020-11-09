@@ -1,4 +1,4 @@
-package cpsc331.assignment2;
+ackage cpsc331.assignment2;
 
 import cpsc331.assignment2.Colour;
 import java.util.NoSuchElementException;
@@ -424,7 +424,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		grandparent.left.setColour(Colour.BLACK);
 		grandparent.right.setColour(Colour.BLACK);
 		grandparent.setColour(Colour.RED);
-		grandparent.setBlackHeight(grandparent.blackHeight + 1);
+		grandparent.setBlackHeight(blackHeight + 1);
 
 		return grandparent;
 
@@ -450,7 +450,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		grandparent.left.setColour(Colour.BLACK);
 		grandparent.right.setColour(Colour.BLACK);
 		grandparent.setColour(Colour.RED);
-		grandparent.setBlackHeight(grandparent.blackHeight + 1);
+		grandparent.setBlackHeight(blackHeight + 1);
 
 		return grandparent;
 
@@ -525,7 +525,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		grandparent.left.setColour(Colour.BLACK);
 		grandparent.right.setColour(Colour.BLACK);
 		grandparent.setColour(Colour.RED);
-		grandparent.setBlackHeight(grandparent.blackHeight + 1);
+		grandparent.setBlackHeight(blackHeight + 1);
 		return grandparent;
 
 	}
@@ -548,13 +548,10 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((grandparent.right).left).colour == Colour.RED : "z must be red.";
 
 		// Details of this method must be replaced!
-		System.out.println(grandparent.right.right.key);
-		System.out.println(grandparent.right.key);
-		System.out.println(grandparent.key);
 		grandparent.left.setColour(Colour.BLACK);
 		grandparent.right.setColour(Colour.BLACK);
 		grandparent.setColour(Colour.RED);
-		grandparent.setBlackHeight(grandparent.blackHeight + 1);
+		grandparent.setBlackHeight(blackHeight + 1);
 		return grandparent;
 
 	}
@@ -621,36 +618,36 @@ class RBTNode<K extends Comparable<K>, V> {
 				while (z.parent != null && z.parent.colour() == Colour.RED) {
 					if (z.parent.left() == z && z.parent.parent.left() == z.parent()
 							&& z.parent.parent.right.colour() == Colour.RED) {
-						System.out.println("Insert case 1a called");
-						z = insert_case_1a(z.parent.parent);
+						insert_case_1a(z.parent.parent);
+						z = z.parent.parent;
 					} else if (z.parent.right() == z && z.parent.parent.left() == z.parent
 							&& z.parent.parent.right.colour() == Colour.RED) {
-						z = insert_case_1b(z.parent.parent);
-						System.out.println("Insert case 1b called");
+						insert_case_1b(z.parent.parent);
+						z = z.parent.parent;
 					} else if (z.parent.left() == z && z.parent.parent.left() == z.parent()
 							&& z.parent.parent.right.colour() == Colour.BLACK) {
-						System.out.println("Insert case 2 called");
-						z = insert_case_2(z.parent.parent);
+						insert_case_2(z.parent.parent);
+						z = z.parent;
 					} else if (z.parent.right() == z && z.parent.parent.left() == z.parent()
 							&& z.parent.parent.right.colour() == Colour.BLACK) {
-						System.out.println("Insert case 3 called");
-						z = insert_case_3(z.parent.parent);
+						insert_case_3(z.parent.parent);
+						z = z.parent;
 					} else if (z.parent.right() == z && z.parent.parent.right() == z.parent()
 							&& z.parent.parent.left.colour() == Colour.RED) {
-						z = insert_case_4a(z.parent.parent);
-						System.out.println("Insert case 4a called.");
+						insert_case_4a(z.parent.parent);
+						z = z.parent.parent;
 					} else if (z.parent.left() == z && z.parent.parent.right() == z.parent
 							&& z.parent.parent.left.colour() == Colour.RED) {
-						z = insert_case_4b(z.parent.parent);
-						System.out.println("Insert case 4b called");
+						insert_case_4b(z.parent.parent);
+						z = z.parent.parent;
 					} else if (z.parent.right() == z && z.parent.parent.right() == z.parent()
 							&& z.parent.parent.left.colour() == Colour.BLACK) {
-						z = insert_case_5(z.parent.parent);
-						System.out.println("Insert case 5 called");
+						insert_case_5(z.parent.parent);
+						z = z.parent;
 					} else if (z.parent.left() == z && z.parent.parent.right() == z.parent
 							&& z.parent.parent.left.colour() == Colour.BLACK) {
-						z = insert_case_6(z.parent.parent);
-						System.out.println("Insert case 6 called");
+						insert_case_6(z.parent.parent);
+						z = z.parent;
 					}
 					if (z.parent() == null && z.colour() == Colour.RED) {
 						z.setColour(Colour.BLACK);
@@ -696,22 +693,16 @@ class RBTNode<K extends Comparable<K>, V> {
 
 		} else {
 			if (this.left.isNil() && this.right.isNil()) {
-				System.out.println("I have two nill children");
 				this.left = null;
 				this.right = null;
 				this.colour = Colour.BLACK;
 				this.key = null;
 				this.value = null;
 				this.setSize(0);
-				System.out.println(this.blackHeight());
 				this.setBlackHeight(0);
 				this.isNil = true;
-				if(this.parent != null) {
-					System.out.println(this.parent.blackHeight());
-				}
 				return this;
 			} else if (this.left.isNil() && !this.right.isNil()) {
-				System.out.println("My left child is nil");
 				this.setSize(this.right.size());
 				this.setKey(this.right.key);
 				this.setValue(this.right.value);
@@ -721,7 +712,6 @@ class RBTNode<K extends Comparable<K>, V> {
 				return this;
 
 			} else if (this.right.isNil() && !this.left.isNil()) {
-				System.out.println("My right child is nil");
 				this.setSize(this.left.size());
 				this.setKey(this.left.key);
 				this.setValue(this.left.value);
@@ -730,7 +720,6 @@ class RBTNode<K extends Comparable<K>, V> {
 				this.left.parent = this;
 				return this;
 			} else {
-				System.out.println("Neither child is nil");
 				RBTNode<K, V> smallestNode = minValue(this.right);
 				this.key = smallestNode.key;
 				this.value = smallestNode.value;
@@ -779,15 +768,11 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.right()).right().colour == Colour.RED) : "Right child of sibling of x must be red.";
 		RBTNode<K, V> delta = beta.right();
 		beta.leftRotate();
-		delta = beta;
-		beta = x;
-		x = x.left;
 		x.setColour(Colour.BLACK);
 		delta.right().setColour(Colour.BLACK);
-		Colour c = delta.colour;
+		beta.setBlackHeight(beta.blackHeight - 1);
 		delta.setColour(beta.colour);
-
-		beta.setColour(c);
+		beta.setColour(Colour.BLACK);
 
 		x = delta;
 
@@ -818,10 +803,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		delta.colour = Colour.RED;
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.REDBLACK);
-		beta.setBlackHeight(beta.blackHeight() - 1);
-		
 		x = beta;
-		
 
 		// Details of this method must be replaced!
 		return x;
@@ -847,11 +829,11 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.right()).right().colour == Colour.BLACK) : "Right child of sibling of x must be black.";
 
 		RBTNode<K, V> delta = beta.right();
+		delta.left().setColour(Colour.BLACK);
 		delta.rightRotate();
-		delta = delta.right();
-		delta.parent().setColour(Colour.BLACK);
 		delta.setColour(Colour.RED);
-		
+		// x = delete_case_3a(x);
+		// Details of this method must be replaced!
 		return x;
 
 	}
@@ -905,7 +887,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.DOUBLEBLACK);
 		delta.setColour(Colour.RED);
-		beta.setBlackHeight(beta.blackHeight - 1);
+		// Details of this method must be replaced!
 		x = beta;
 		return x;
 
@@ -928,16 +910,12 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.left()).left().colour == Colour.RED) : "Left child of sibling of x must be red.";
 
 		RBTNode<K, V> delta = beta.left();
-		x.setColour(Colour.BLACK);
 		beta.rightRotate();
-		delta = beta;
-		beta = x;
-		x = x.right;
+		x.setColour(Colour.BLACK);
 		delta.left().setColour(Colour.BLACK);
-		Colour c = delta.colour;
+		beta.setBlackHeight(beta.blackHeight - 1);
 		delta.setColour(beta.colour);
-
-		beta.setColour(c);
+		beta.setColour(Colour.BLACK);
 
 		x = delta;
 
@@ -967,7 +945,6 @@ class RBTNode<K extends Comparable<K>, V> {
 		delta.colour = Colour.RED;
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.REDBLACK);
-		beta.setBlackHeight(beta.blackHeight() - 1);
 		x = beta;
 
 		// Details of this method must be replaced!
@@ -994,9 +971,8 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.left()).left().colour == Colour.BLACK) : "Left child of sibling of x must be black.";
 		assert ((beta.left()).right().colour == Colour.RED) : "Right child of sibling of x must be red.";
 		RBTNode<K, V> delta = beta.left();
+		delta.right().setColour(Colour.BLACK);
 		delta.leftRotate();
-		delta = delta.left;
-		delta.parent().setColour(Colour.BLACK);
 		delta.setColour(Colour.RED);
 
 		// Details of this method must be replaced!
@@ -1053,7 +1029,6 @@ class RBTNode<K extends Comparable<K>, V> {
 		x.setColour(Colour.BLACK);
 		beta.setColour(Colour.DOUBLEBLACK);
 		delta.setColour(Colour.RED);
-		beta.setBlackHeight(beta.blackHeight - 1);
 		// Details of this method must be replaced!
 		x = beta;
 		return x;
@@ -1072,54 +1047,43 @@ class RBTNode<K extends Comparable<K>, V> {
 			RBTNode<K, V> y = search(key);
 			Colour yColour = y.colour();
 			RBTNode<K, V> x = regular_delete(key);
-			System.out.println(y.colour);
-			System.out.println(y.parent == null);
 			if (y.parent != null && yColour == Colour.BLACK && y.parent.colour == Colour.BLACK) {
 				if (x.colour == Colour.RED) {
 					x.setColour(Colour.REDBLACK);
-					System.out.println("x is redblack!");
 				} else if (x.colour == Colour.BLACK) {
 					x.setColour(Colour.DOUBLEBLACK);
 
 				}
-				
-			}
-			else {
-				System.out.println("Get out of jail, pass go, collect 200 dollars.");
 			}
 
 			while (x.colour == Colour.DOUBLEBLACK && x.parent != null) {
 				if (x == x.parent.left()) {
 					if (x.parent.right.colour == Colour.BLACK && x.parent.right.right != null
 							&& x.parent.right.right.colour == Colour.RED) {
-						System.out.println("Delete case 3a is called.");
-						x = delete_case_3a(x);
-						
+						// System.out.println("Subcase 3a has been called.");
+						delete_case_3a(x);
+						x = x.parent;
 					}
 
 					else if (x.parent.right.colour == Colour.BLACK && x.parent.colour == Colour.RED
 							&& x.parent.right.right.colour == x.parent.right.left.colour
 							&& x.parent.right.left.colour == Colour.BLACK) {
-						System.out.println("Delete case 3b is called.");
-						x = delete_case_3b(x);
-						
+						delete_case_3b(x);
+						x = x.parent;
 					} else if (x.parent.right.left.colour == Colour.RED && x.parent.right.colour == Colour.BLACK
 							&& x.parent.right.right.colour == Colour.BLACK) {
-						System.out.println("Delete case 3c is called.");
-						x = delete_case_3c(x);
-						
+						delete_case_3c(x);
+						x = x.parent;
 					} else if (x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.RED
 							&& x.parent.right.right.colour == Colour.BLACK
 							&& x.parent.right.left.colour == Colour.BLACK) {
-						System.out.println("Delete case 3d has been called.");
-						x = delete_case_3d(x);
-						
+						delete_case_3d(x);
+						x = x.parent;
 					} else if (x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK
 							&& x.parent.right.left.colour == Colour.BLACK
 							&& x.parent.right.right.colour == Colour.BLACK) {
-						System.out.println("Delete case 3e has been called.");
-						x = delete_case_3e(x);
-						
+						delete_case_3e(x);
+						x = x.parent;
 					}
 
 				}
@@ -1127,40 +1091,36 @@ class RBTNode<K extends Comparable<K>, V> {
 				else if (x == x.parent.right()) {
 					if (x.parent.left.colour == Colour.BLACK && x.parent.left.left != null
 							&& x.parent.left.left.colour == Colour.RED) {
-						System.out.println("Delete case 3f has been called");
-						x = delete_case_3f(x);
-						
+
+						delete_case_3f(x);
+						x = x.parent;
 					}
 
 					else if (x.parent.colour == Colour.RED && x.parent.left.colour == Colour.BLACK
 							&& x.parent.left.right.colour == x.parent.left.left.colour
 							&& x.parent.left.left.colour == Colour.BLACK) {
-						System.out.println("delete case 3g has been called");
-						x = delete_case_3g(x);
-						
+						delete_case_3g(x);
+						x = x.parent;
 					} else if (x.parent.left.right.colour == Colour.RED && x.parent.left.colour == Colour.BLACK
 							&& x.parent.left.left.colour == Colour.BLACK) {
-						System.out.println("Delete case 3h has been called");
-						x = delete_case_3h(x);
-						
+						delete_case_3h(x);
+						x = x.parent;
 					} else if (x.parent.colour == Colour.BLACK && x.parent.left.colour == Colour.RED
 							&& x.parent.left.right.colour == Colour.BLACK
 							&& x.parent.left.left.colour == Colour.BLACK) {
-						System.out.println("Delete case 3i has been called");
-						x = delete_case_3i(x);
-						
+						delete_case_3i(x);
+						x = x.parent;
 					} else if (x.parent.colour == Colour.BLACK && x.parent.left.colour == Colour.BLACK
 							&& x.parent.left.left.colour == Colour.BLACK
 							&& x.parent.left.right.colour == Colour.BLACK) {
-						System.out.println("Delete case 3j has been called.");
-						x = delete_case_3j(x);
-						
+						delete_case_3j(x);
+						x = x.parent;
 					}
 
 				}
 
 			}
-			if(x.colour == Colour.REDBLACK || x.parent == null) {
+			if (x.colour == Colour.REDBLACK || x.parent == null) {
 				x.setColour(Colour.BLACK);
 			}
 		} catch (NoSuchElementException ex) {
