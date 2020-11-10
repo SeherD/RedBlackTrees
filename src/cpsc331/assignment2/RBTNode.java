@@ -511,7 +511,7 @@ class RBTNode<K extends Comparable<K>, V> {
 		grandparent.setColour(Colour.BLACK);
 		grandparent.right.setColour(Colour.RED);
 
-		return grandparent;
+		return grandparent.left;
 
 	}
 
@@ -612,7 +612,8 @@ class RBTNode<K extends Comparable<K>, V> {
 		grandparent.leftRotate();
 		grandparent.setColour(Colour.BLACK);
 		grandparent.left.setColour(Colour.RED);
-		return grandparent;
+		System.out.println(grandparent.key());
+		return grandparent.right;
 
 	}
 
@@ -641,6 +642,7 @@ class RBTNode<K extends Comparable<K>, V> {
 							&& z.parent.parent.right.colour() == Colour.BLACK) {
 						System.out.println("Insert case 2 called");
 						z = insert_case_2(z.parent.parent);
+						break;
 					} else if (z.parent.right() == z && z.parent.parent.left() == z.parent()
 							&& z.parent.parent.right.colour() == Colour.BLACK) {
 						System.out.println("Insert case 3 called");
@@ -657,6 +659,7 @@ class RBTNode<K extends Comparable<K>, V> {
 							&& z.parent.parent.left.colour() == Colour.BLACK) {
 						z = insert_case_5(z.parent.parent);
 						System.out.println("Insert case 5 called");
+						break;
 					} else if (z.parent.left() == z && z.parent.parent.right() == z.parent
 							&& z.parent.parent.left.colour() == Colour.BLACK) {
 						z = insert_case_6(z.parent.parent);
@@ -741,42 +744,62 @@ class RBTNode<K extends Comparable<K>, V> {
 				return this;
 			} else {
 				System.out.println("Neither child is nil");
-				RBTNode<K, V> smallestNode = minValue(this.right);
-				this.key = smallestNode.key;
-				this.value = smallestNode.value;
-				this.setSize(this.size() - 1);
-				if(smallestNode == this.right && this.right.colour == Colour.BLACK) {
+				/*RBTNode<K, V> smallestNode = minValue(this.right);
+				K smallestKey = smallestNode.key;
+				V smallestValue = smallestNode.value;
+				delete(smallestNode.key);
+				System.out.println("I'm back!");
+				this.key = key;
+				this.value = value;
+				System.out.println(smallestNode.parent.right().colour());
+				System.out.println(smallestNode.parent.colour());*/
+				/*if(smallestNode == this.right && this.right.colour == Colour.BLACK) {
+					this.left.setColour(Colour.RED);
+					this.setBlackHeight(blackHeight - 1);
+					this.setColour(Colour.BLACK);
 					this.right = this.right.right();
 					this.right.parent = this;
-					this.right.setColour(Colour.BLACK);
-					this.right.setBlackHeight(blackHeight + 1);
-					System.out.println(this.blackHeight);
-				}
-				System.out.println(smallestNode.key());
-				System.out.println(smallestNode.right.isNil());
-				System.out.println(smallestNode.right.key);
-				System.out.println(this.right.key);
-				smallestNode.setColour(Colour.BLACK);
+				}*/
+				/*else if(smallestNode.colour() == Colour.BLACK && smallestNode.parent.right.colour() == Colour.BLACK && smallestNode.parent.colour == Colour.BLACK) {
+					smallestNode.parent.right.setColour(Colour.RED);
+					smallestNode.parent.setBlackHeight(smallestNode.parent.blackHeight - 1);
+					System.out.println("Booya!");
+				}*/
+				/*smallestNode.setColour(Colour.BLACK);
 				smallestNode.setKey(null);
 				smallestNode.setValue(null);
 				smallestNode.setLeft(null);
 				smallestNode.setRight(null);
 				smallestNode.setSize(0);
 				smallestNode.blackHeight = 0;
-				smallestNode.isNil = true;
-				return this;
+				smallestNode.isNil = true;*/
+				
+				
+				RBTNode<K,V> smallestNode = minValue(this.right());
+				K smallestKey = smallestNode.key;
+				V smallestValue = smallestNode.value;
+				K currentKey = this.key();
+				System.out.println(this.key);
+				delete(smallestNode.key);
+				RBTNode<K,V> x = search(currentKey);
+				
+				x.key = smallestKey;
+				x.value = smallestValue;
+				return x;
 			}
 		}
 
 	}
 
 	RBTNode<K, V> minValue(RBTNode<K, V> node) {
+		System.out.println("Keys");
 		while (!node.left.isNil()) {
-			//node.setSize(node.size() - 1);
-			node = node.left;
+			node = node.left();
+			System.out.println(node.blackHeight());
 		}
 		return node;
 	}
+	
 
 	// The next ten methods each implement one of the adjustments
 	// that might be required when the tree includes a double-black
@@ -805,13 +828,9 @@ class RBTNode<K extends Comparable<K>, V> {
 		RBTNode<K, V> delta = beta.right();
 		Colour betaColour = beta.colour;
 		Colour deltaColour = delta.colour;
-		System.out.println(beta.key);
-		System.out.println(delta.key);
 		beta.leftRotate();
 		delta = beta;
 		beta = delta.left;
-		System.out.println(beta.key);
-		System.out.println(delta.key);
 		if(x!=null)
 		x.setColour(Colour.BLACK);
 		delta.right().setColour(Colour.BLACK);
@@ -934,6 +953,10 @@ class RBTNode<K extends Comparable<K>, V> {
 		beta.setColour(Colour.DOUBLEBLACK);
 		delta.setColour(Colour.RED);
 		beta.setBlackHeight(beta.blackHeight - 1);
+		System.out.println(x.blackHeight());
+		System.out.println(x.key);
+		System.out.println(x.parent.blackHeight());
+		System.out.println(x.parent.key);
 		x = beta;
 		return x;
 
@@ -956,17 +979,16 @@ class RBTNode<K extends Comparable<K>, V> {
 		assert ((beta.left()).left().colour == Colour.RED) : "Left child of sibling of x must be red.";
 
 		RBTNode<K, V> delta = beta.left();
-		x.setColour(Colour.BLACK);
+		Colour betaColour = beta.colour;
+		Colour deltaColour = delta.colour;
 		beta.rightRotate();
 		delta = beta;
-		beta = x;
-		x = x.right;
+		beta = delta.right;
+		if(x!=null)
+		x.setColour(Colour.BLACK);
 		delta.left().setColour(Colour.BLACK);
-		Colour c = delta.colour;
-		delta.setColour(beta.colour);
-
-		beta.setColour(c);
-
+		delta.setColour(betaColour);
+		beta.setColour(deltaColour);
 		x = delta;
 
 		return x;
@@ -1053,7 +1075,6 @@ class RBTNode<K extends Comparable<K>, V> {
 		delta.setColour(Colour.BLACK);
 		beta.setColour(Colour.RED);
 		beta.rightRotate();
-
 		return x;
 		// Details of this method must be replaced!
 
@@ -1118,8 +1139,11 @@ class RBTNode<K extends Comparable<K>, V> {
 				if (x.colour == Colour.RED) {
 					x.setColour(Colour.REDBLACK);
 					System.out.println("x is redblack!");
-				} else if (x.colour == Colour.BLACK) {
+				} else if (x.colour == Colour.BLACK && x.parent.blackHeight - x.blackHeight == 2) {
 					x.setColour(Colour.DOUBLEBLACK);
+					System.out.println(x.key);
+					System.out.println(x.blackHeight());
+					System.out.println(x.parent.blackHeight());
 					System.out.println("x is doubleblack!");
 
 				}
@@ -1163,7 +1187,7 @@ class RBTNode<K extends Comparable<K>, V> {
 					} else if (x.parent.colour == Colour.BLACK && x.parent.right.colour == Colour.BLACK
 							&& x.parent.right.left.colour == Colour.BLACK
 							&& x.parent.right.right.colour == Colour.BLACK) {
-						System.out.println("Delete case 3e has been called.");
+						System.out.println("in 3e");
 						x = delete_case_3e(x);
 						
 					}
